@@ -1,8 +1,9 @@
+import LofinForm from "./LofinForm";
+
 export default function LoginPage() {
-  
   return (
-    <div>
-      <h1>Login Page</h1>
+    <div className="flex justify-center items-center h-[calc(100vh-64px)]">
+      <LofinForm />
     </div>
   );
 }
