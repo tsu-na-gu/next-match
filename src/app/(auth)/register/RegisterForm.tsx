@@ -8,15 +8,31 @@ import { useForm } from "react-hook-form";
 import { GiPadlock } from "react-icons/gi";
 import { RegisterSchema, registerSchema } from "@/lib/registerSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { registerUser } from "@/app/actions/authActions";
+
+type FieldName = keyof RegisterSchema;
 
 export default function RegisterForm() {
-  const {register, handleSubmit, formState: {errors, isValid }} = useForm<RegisterSchema>({
+  const {register, handleSubmit, setError, formState: {errors, isValid }} = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     mode: "onTouched"
   });
 
-  const onSubmit = (data: RegisterSchema) => {
-    console.log(data);
+  const onSubmit = async (data: RegisterSchema) => {
+    const result = await registerUser(data);
+    
+    if (result.status === 'success') {
+      console.log("User registered successfully");
+    } else {
+      if (Array.isArray(result.error)) {
+        result.error.forEach(error => {
+          const fieldName = error.path[0].toString() as FieldName;
+          setError(fieldName, {message: error.message})
+        })  
+      } else {
+        setError('root.serverError', {message: result.error})
+      }
+    }
   }
 
   return (
@@ -59,6 +75,11 @@ export default function RegisterForm() {
                  isInvalid={!!errors.password}
                  errorMessage={errors.password?.message}
                 />
+              {errors.root?.serverError && (
+                <p className='text-danger text-md'>
+                  {errors.root.serverError.message}
+                </p>
+              )}
               <Button isDisabled={!isValid} fullWidth color="secondary" type="submit">
                 Register
               </Button>
