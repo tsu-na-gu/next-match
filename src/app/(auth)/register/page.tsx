@@ -1,7 +1,9 @@
+import RegisterForm from "./RegisterForm";
+
 export default function RegisterPage() {
   return (
-    <div>
-      <h1>Register Page</h1>
+    <div className="flex justify-center items-center h-[calc(100vh-64px)]">
+      <RegisterForm />
     </div>
   );
 }
