@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { NextResponse } from "next/server";
 
 const publivRoutes = [
   '/'
@@ -10,28 +10,31 @@ const authRoutes = [
   '/register'
 ];
 
-export default auth(async function middleware(req: NextRequest) {
-  const {nextUrl} = req
-  const isLoggedIn = !!req.cookies.get('authjs.session-token');
+export default auth((req) => {
+  const {nextUrl} = req;
+  const isLoggedIn = !!req.auth;
 
   const isPublic = publivRoutes.includes(nextUrl.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
   console.log('nextUrl.pathname', nextUrl.pathname);
   console.log('isPublic', isPublic);
   console.log('isAuthRoute', isAuthRoute);
+
   if (isPublic) {
     return NextResponse.next();
   }
 
   if (isAuthRoute) {
     if (isLoggedIn) {
-      return NextResponse.redirect(new URL("/members', nextUrl))"))
+      return NextResponse.redirect(new URL("/members", nextUrl.origin));
     }
     return NextResponse.next();
   }
+
   if (!isPublic && !isLoggedIn) {
-    return NextResponse.redirect(new URL("/login", nextUrl))
+    return Response.redirect(new URL("/login", nextUrl.origin));
   }
+
 });
 
 export const config = {
@@ -41,8 +44,11 @@ export const config = {
      * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
-     * - favicon.ico, sitemap.xml, robots.txt (metadata files)
+     * - favicon.ico (favicon file)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/members/:path*',
+    '/login',
+    '/register'
   ],
 };
