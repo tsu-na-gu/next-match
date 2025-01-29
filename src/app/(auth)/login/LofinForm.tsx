@@ -10,6 +10,7 @@ import {  LoginSchema, loginSchema } from "@/lib/loginSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInUser } from "@/app/actions/authActions";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 
 
@@ -19,13 +20,14 @@ export default function LofinForm() {
     resolver: zodResolver(loginSchema),
     mode: "onTouched"
   });
-
+ 
   const onSubmit = async (data: LoginSchema) => {
     const result = await signInUser(data);
-    if (result.status === 'success') {
+    if ( result.status === 'success') {
       router.push('/members');
+      router.refresh();
     } else {
-      console.log(result.error);
+      toast.error(result.error.toString());
     }
   }
 
